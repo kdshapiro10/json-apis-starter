@@ -3,7 +3,7 @@ function validateData(e){
     e.preventDefault();
 
     // get the word that the user entered in the input, store in variable named word
-    // TO DO
+    let word = document.getElementById("my-word").value;
 
     word = word.trim();
 
@@ -12,23 +12,62 @@ function validateData(e){
         resetDisplay();
     }else{
         // if the word is valid, let's make our call to the function that works with the API
-        // TO DO
+        getWord(word);
     }
 }
 
 function getWord(word){
 
     // places on the page used for output
-    // TO DO
+    let outputSection = document.getElementById("output");
+    let userWord = document.querySelector("#user-word span");
+    let display = document.getElementById("display-word-info");
 
     // un-hide the output section
-    // TO DO
+    outputSection.classList.remove("hidden");
 
     // clear the list of any previous output
     resetDisplay();
 
     // create ajax object
-    // TO DO
+    const data = null;
+
+    const xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener('readystatechange', function () {
+        if (this.readyState === this.DONE) {
+            console.log(this.responseText);
+
+            let wordInfo = JSON.parse(this.responseText);
+
+            if(wordInfo.success === false || wordInfo.hasOwnProperty("query")){
+                userWord.innerHTML = `<strong>${word} is not a valid word</strong>`;
+                resetDisplay();
+                display.innerHTML = "<li>Please enter another word and try again</li>";
+            }else if(!wordInfo.definitions){
+                userWord.innerHTML = `<strong>${word}</strong>`;
+                display.innerHTML = "<li>This word does not include any definitions in the dictionary</li>";
+            }else{
+                userWord.innerHTML = `<strong>${word}</strong>`;
+                resetDisplay();
+
+                for(let def of wordInfo.definitions){
+                    display.innerHTML += `<li>${def.definition}</li>`;
+                }
+
+                 // clear the user input to make room for another word
+                 resetInput();
+            }
+        }
+    });
+
+    const endpoint = `https://wordsapiv1.p.rapidapi.com/words/${word}/definitions`;
+    xhr.open('GET', endpoint);
+    xhr.setRequestHeader('x-rapidapi-key', 'dd2344fcd4mshba3afe4c7ea9876p1ee78bjsnf64cd766aa8a');
+    xhr.setRequestHeader('x-rapidapi-host', 'wordsapiv1.p.rapidapi.com');
+
+    xhr.send(data);
 
     // set withCredentials property on ajax object to true (we will access with a key)
     // TO DO
@@ -67,11 +106,7 @@ function getWord(word){
                     // TO DO
                 
 
-                // clear the user input to make room for another word
-                resetInput();
-            }
-        }
-    });
+          
 
     // start of endpoint to API
     // TO DO
